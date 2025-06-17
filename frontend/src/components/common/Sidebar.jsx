@@ -18,7 +18,7 @@ const Sidebar = () => {
         mutationFn: async () => {
             try {
                 const res = await fetch("/api/auth/logout", {
-                    method: "GET",
+                    method: "POST",
                     credentials: "include",
                 });
                 const data = await res.json();
