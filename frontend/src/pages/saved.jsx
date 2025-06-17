@@ -12,7 +12,7 @@ const SavedPosts = () => {
   });
 
   return (
-    <div className="w-full mx-auto mt-8 px-4">
+    <div className="flex-1 px-4 md:px-8 lg:px-12 overflow-y-auto">
       <h1 className="text-2xl font-bold mb-6 text-white">Saved Posts</h1>
       {isLoading ? (
         <div className="text-gray-400">Loading...</div>
