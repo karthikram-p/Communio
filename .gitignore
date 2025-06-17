@@ -9,7 +9,10 @@ lerna-debug.log*
 
 node_modules
 /dist
+<<<<<<< HEAD
 !frontend/dist
+=======
+>>>>>>> e03ff481edc1837d6cdd5666c6e986669eb26005
 dist-ssr
 *.local
 
