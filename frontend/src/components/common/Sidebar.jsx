@@ -1,7 +1,6 @@
-import XSvg from "../svgs/X";
+import communioLogo from "../svgs/communio.png";
 import { MdHomeFilled, MdGroup } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { AiOutlinePlus } from "react-icons/ai";
 import { HiChatBubbleLeftRight } from "react-icons/hi2";
@@ -274,7 +273,7 @@ const Sidebar = () => {
             <aside className="md:flex-[2_2_0] w-20 max-w-60 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
                 <div className="sticky top-0 left-0 flex flex-col h-screen">
                     <Link to='/' className='flex justify-center md:justify-start py-6 group'>
-                        <XSvg className={`w-14 h-14 rounded-xl bg-black p-2 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
+                        <img src={communioLogo} alt="Communio Logo" className={`w-20 h-20 rounded-xl bg-black p-2 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
                     </Link>
                     <ul className='flex flex-col gap-4 mt-2 px-2'>
                         <li>
@@ -297,16 +296,6 @@ const Sidebar = () => {
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
                                 <MdHomeFilled className={`${iconBase} relative z-10 ${iconGlow}`} />
                                 <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Home</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to={`/profile/${authUser?.username}`}
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
-                            >
-                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <FaUser className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Profile</span>
                             </Link>
                         </li>
                         {/* --- Communities and Create Community --- */}
