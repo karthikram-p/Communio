@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import useFollow from "../../hooks/useFollow";
@@ -7,6 +7,12 @@ import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
+    const location = useLocation();
+
+    // Hide right panel on community chat page
+    const hideRightPanel = /^\/communities\/[^/]+\/chat$/.test(location.pathname);
+    if (hideRightPanel) return null;
+
     const { data: suggestedUsers, isLoading } = useQuery({
         queryKey: ["suggestedUsers"],
         queryFn: async () => {

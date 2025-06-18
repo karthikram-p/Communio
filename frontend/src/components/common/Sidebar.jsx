@@ -1,8 +1,10 @@
 import XSvg from "../svgs/X";
-import { MdHomeFilled } from "react-icons/md";
+import { MdHomeFilled, MdGroup } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
+import { AiOutlinePlus } from "react-icons/ai";
+import { HiChatBubbleLeftRight } from "react-icons/hi2";
 import { Link, useNavigate } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +12,7 @@ import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { createPortal } from "react-dom";
+import axios from "axios";
 
 const Sidebar = () => {
     const queryClient = useQueryClient();
@@ -117,6 +120,49 @@ const Sidebar = () => {
     const textBase = "text-white font-semibold transition-all duration-200";
     const textGlow = "group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]";
 
+    // Fetch joined communities for chat
+    const [joinedCommunities, setJoinedCommunities] = useState([]);
+    useEffect(() => {
+        if (authUser) {
+            axios
+                .get("/api/communities", { withCredentials: true })
+                .then((res) => {
+                    setJoinedCommunities(
+                        res.data.filter((c) =>
+                            c.members?.some((m) =>
+                                (typeof m === "string" && m === authUser._id) ||
+                                (typeof m === "object" && m._id === authUser._id)
+                            )
+                        )
+                    );
+                })
+                .catch(() => setJoinedCommunities([]));
+        }
+    }, [authUser]);
+
+    // Popup state for joined communities chat list
+    const [showChatsPopup, setShowChatsPopup] = useState(false);
+    const chatsPopupRef = useRef(null);
+
+    // Close chats popup when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                chatsPopupRef.current &&
+                !chatsPopupRef.current.contains(event.target) &&
+                event.target.id !== "chats-popup-btn"
+            ) {
+                setShowChatsPopup(false);
+            }
+        };
+        if (showChatsPopup) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showChatsPopup]);
+
     // Portalized search popup
     const searchPopup = showPopup
         ? createPortal(
@@ -174,6 +220,55 @@ const Sidebar = () => {
         )
         : null;
 
+    // Chats popup portal (shows all joined communities for chat)
+    const chatsPopup = showChatsPopup
+        ? createPortal(
+            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40">
+                <div
+                    ref={chatsPopupRef}
+                    className="mt-24 bg-black border border-neutral-800 rounded-xl shadow-xl p-4"
+                    style={{ minWidth: "320px", maxHeight: "60vh", overflowY: "auto" }}
+                >
+                    <div className="flex items-center gap-2 mb-2">
+                        <HiChatBubbleLeftRight className="text-blue-400 text-xl" />
+                        <span className="text-white font-semibold text-lg">Joined Communities</span>
+                        <button
+                            onClick={() => setShowChatsPopup(false)}
+                            className="ml-auto text-neutral-400 hover:text-white px-2"
+                            title="Close"
+                        >
+                            &#10005;
+                        </button>
+                    </div>
+                    {joinedCommunities.length === 0 ? (
+                        <div className="text-neutral-500 px-3 py-2">No joined communities</div>
+                    ) : (
+                        <ul className="flex flex-col gap-1">
+                            {joinedCommunities.map((c) => (
+                                <li key={c._id}>
+                                    <Link
+                                        to={`/communities/${c._id}/chat`}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition"
+                                        onClick={() => setShowChatsPopup(false)}
+                                    >
+                                        <img
+                                            src={c.profilePhoto || "/default-community.png"}
+                                            alt={c.name}
+                                            className="w-8 h-8 rounded-lg object-cover border border-blue-400"
+                                            onError={e => { e.target.onerror = null; e.target.src = "/default-community.png"; }}
+                                        />
+                                        <span className="text-white text-base truncate">{c.name}</span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </div>,
+            document.body
+        )
+        : null;
+
     return (
         <>
             <aside className="md:flex-[2_2_0] w-20 max-w-60 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
@@ -204,6 +299,51 @@ const Sidebar = () => {
                                 <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Home</span>
                             </Link>
                         </li>
+                        <li>
+                            <Link
+                                to={`/profile/${authUser?.username}`}
+                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                            >
+                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
+                                <FaUser className={`${iconBase} relative z-10 ${iconGlow}`} />
+                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Profile</span>
+                            </Link>
+                        </li>
+                        {/* --- Communities and Create Community --- */}
+                        <li>
+                            <Link
+                                to='/communities'
+                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                            >
+                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
+                                <MdGroup className={`${iconBase} relative z-10 ${iconGlow}`} />
+                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Communities</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to='/communities/create'
+                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                            >
+                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
+                                <AiOutlinePlus className={`${iconBase} relative z-10 ${iconGlow}`} />
+                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Create Community</span>
+                            </Link>
+                        </li>
+                        {/* --- Community Chats (joined communities) as popup --- */}
+                        <li>
+                            <button
+                                id="chats-popup-btn"
+                                type="button"
+                                onClick={() => setShowChatsPopup(true)}
+                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                            >
+                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-blue-700 transition-all duration-200 pointer-events-none"></span>
+                                <HiChatBubbleLeftRight className="text-blue-400 relative z-10" />
+                                <span className="text-lg hidden md:block relative z-10 text-blue-400 font-semibold">Chats</span>
+                            </button>
+                        </li>
+                        {/* --- End Communities --- */}
                         <li className='relative'>
                             <Link
                                 to='/notifications'
@@ -217,16 +357,6 @@ const Sidebar = () => {
                                         {notificationCount}
                                     </span>
                                 )}
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to={`/profile/${authUser?.username}`}
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
-                            >
-                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <FaUser className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Profile</span>
                             </Link>
                         </li>
                         <li>
@@ -266,7 +396,9 @@ const Sidebar = () => {
                 </div>
             </aside>
             {searchPopup}
+            {chatsPopup}
         </>
     );
 };
+
 export default Sidebar;
