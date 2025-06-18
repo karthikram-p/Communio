@@ -299,16 +299,6 @@ const Sidebar = () => {
                                 <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Home</span>
                             </Link>
                         </li>
-                        <li>
-                            <Link
-                                to={`/profile/${authUser?.username}`}
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
-                            >
-                                <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <FaUser className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Profile</span>
-                            </Link>
-                        </li>
                         {/* --- Communities and Create Community --- */}
                         <li>
                             <Link
