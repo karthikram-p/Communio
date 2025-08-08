@@ -80,77 +80,61 @@ const CommunityChat = () => {
     if (!community) return <div className="text-white">Loading...</div>;
 
     return (
-        <div className="mt-8 flex flex-col items-center">
-            <div className="w-full max-w-5xl ml-20 md:ml-60 bg-neutral-900 p-6 rounded-xl shadow-lg border border-neutral-800">
-                {/* Community Header */}
-                <div className="flex items-center mb-8 bg-gradient-to-r from-blue-900/70 to-blue-800/40 rounded-xl p-8 shadow-lg w-full">
-                    <img
-                        src={community.profilePhoto || "/default-community.png"}
-                        alt={community.name}
-                        className="w-20 h-20 rounded-xl object-cover border-2 border-blue-500 shadow mr-7"
-                        onError={e => { e.target.onerror = null; e.target.src = "/default-community.png"; }}
-                    />
-                    <div>
-                        <h2 className="text-white text-3xl font-bold">{community.name}</h2>
-                        <p className="text-neutral-300 text-lg">{community.description}</p>
-                        {notifications.length > 0 && (
-                            <button
-                                className="mt-3 bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 text-sm font-medium shadow"
-                                onClick={handleMarkAsRead}
-                                disabled={marking}
-                            >
-                                {marking ? "Marking..." : `Mark ${notifications.length} as Read`}
-                            </button>
-                        )}
-                    </div>
+        <div className="flex flex-col h-[80vh] w-full md:w-[55vw] mx-auto border border-neutral-800 rounded-xl bg-black mt-8 shadow-lg" style={{ minHeight: 500, maxWidth: '100vw' }}>
+            <div className="p-4 border-b border-neutral-800 flex items-center gap-3">
+                <img src={community.profilePhoto || "/default-community.png"} alt={community.name} className="w-10 h-10 rounded-xl object-cover border-2 border-blue-500" />
+                <div>
+                    <div className="text-white font-bold text-lg">{community.name}</div>
+                    <div className="text-neutral-400 text-sm">{community.description}</div>
                 </div>
-                {/* Chat Messages */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 mb-6 max-h-[60vh] min-h-[300px] overflow-y-auto shadow-inner flex flex-col gap-4 w-full">
-                    {messages.length === 0 ? (
-                        <div className="text-neutral-500 text-center mt-10">No messages yet. Start the conversation!</div>
-                    ) : (
-                        messages.map((msg) => (
-                            <div key={msg._id} className="flex items-start gap-4 group hover:bg-neutral-800/60 rounded-lg px-3 py-2 transition">
-                                <Link to={`/profile/${msg.sender.username}`}>
-                                    <img
-                                        src={msg.sender.profilePhoto || "/avatar-placeholder.png"}
-                                        alt={msg.sender.username}
-                                        className="w-12 h-12 rounded-full border-2 border-blue-400 shadow"
-                                        onError={e => { e.target.onerror = null; e.target.src = "/avatar-placeholder.png"; }}
-                                    />
-                                </Link>
-                                <div className="flex-1">
-                                    <Link
-                                        to={`/profile/${msg.sender.username}`}
-                                        className="text-blue-400 font-semibold hover:underline text-base"
-                                    >
-                                        {msg.sender.username}
-                                    </Link>
-                                    <div className="text-neutral-100 text-lg mt-0.5">{msg.text}</div>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                {/* Message Input */}
-                <form onSubmit={sendMessage} className="flex gap-3 mt-2 w-full">
-                    <input
-                        type="text"
-                        value={text}
-                        onChange={e => setText(e.target.value)}
-                        placeholder="Type your message..."
-                        className="flex-1 p-4 rounded-lg bg-neutral-800 text-white border border-neutral-700 focus:border-blue-500 outline-none text-lg"
-                    />
+                {notifications.length > 0 && (
                     <button
-                        type="submit"
-                        className="bg-gradient-to-r from-blue-600 to-blue-400 text-white px-8 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-500 transition text-lg"
-                        disabled={loading}
+                        className="ml-auto bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 text-sm font-medium shadow"
+                        onClick={handleMarkAsRead}
+                        disabled={marking}
                     >
-                        Send
+                        {marking ? "Marking..." : `Mark ${notifications.length} as Read`}
                     </button>
-                </form>
+                )}
             </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{ minHeight: 300 }}>
+                {messages.length === 0 ? (
+                    <div className="text-neutral-400 text-center mt-10">No messages yet. Start the conversation!</div>
+                ) : (
+                    messages.map((msg) => (
+                        <div key={msg._id} className={`flex ${msg.sender.username === community.name ? "justify-start" : "justify-end"}`}>
+                            <div className={`px-3 py-2 rounded-lg max-w-xs ${msg.sender.username === community.name ? "bg-neutral-800 text-white" : "bg-blue-600 text-white"}`}>
+                                <div className="text-sm">{msg.text}</div>
+                                <div className="text-xs text-neutral-400 mt-1">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            </div>
+                        </div>
+                    ))
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+            <form
+                className="flex items-center gap-2 p-4 border-t border-neutral-800"
+                onSubmit={e => {
+                    e.preventDefault();
+                    if (text.trim()) sendMessage(e);
+                }}
+            >
+                <input
+                    type="text"
+                    className="flex-1 px-3 py-2 rounded-lg bg-neutral-900 text-white outline-none"
+                    placeholder="Type a message..."
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                    disabled={loading}
+                />
+                <button
+                    type="submit"
+                    className="btn btn-primary px-4 py-2 rounded-lg text-white"
+                    disabled={loading || !text.trim()}
+                >
+                    Send
+                </button>
+            </form>
         </div>
     );
 };
