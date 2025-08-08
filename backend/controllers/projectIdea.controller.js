@@ -4,10 +4,12 @@ import ProjectIdeaThread from "../models/projectIdeaThread.model.js";
 // Create a new project idea
 export const createIdea = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, domain } = req.body;
+    if (!domain) return res.status(400).json({ error: "Domain is required" });
     const idea = new ProjectIdea({
       title,
       description,
+      domain,
       author: req.user._id,
     });
     await idea.save();
@@ -20,10 +22,16 @@ export const createIdea = async (req, res) => {
 // List all project ideas (with search)
 export const getIdeas = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, domain, author } = req.query;
     let query = {};
     if (search) {
-      query = { title: { $regex: search, $options: "i" } };
+      query.title = { $regex: search, $options: "i" };
+    }
+    if (domain) {
+      query.domain = domain;
+    }
+    if (author) {
+      query.author = author;
     }
     const ideas = await ProjectIdea.find(query)
       .populate("author", "username profileImg")

@@ -14,34 +14,9 @@ import { createPortal } from "react-dom";
 import axios from "axios";
 import { useDirectChats } from "../../hooks/useDirectChats";
 
-const Sidebar = () => {
-    const queryClient = useQueryClient();
-    const navigate = useNavigate();
-    const { mutate: logout } = useMutation({
-        mutationFn: async () => {
-            try {
-                const res = await fetch("/api/auth/logout", {
-                    method: "POST",
-                    credentials: "include",
-                });
-                const data = await res.json();
-
-                if (!res.ok) {
-                    throw new Error(data.error || "Something went wrong");
-                }
-            } catch (error) {
-                throw new Error(error);
-            }
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["authUser"] });
-            navigate("/login");
-        },
-        onError: () => {
-            toast.error("Logout failed");
-        },
-    });
+function Sidebar() {
     const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+    const navigate = useNavigate();
 
     // Fetch notifications for the logged-in user
     const { data: notifications } = useQuery({
@@ -55,9 +30,13 @@ const Sidebar = () => {
             return res.json();
         },
     });
-
     const notificationCount = notifications?.length || 0;
 
+    // Simple logout handler
+    const logout = async () => {
+        await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+        navigate("/auth/login");
+    };
 
     // Search state and type
     const [search, setSearch] = useState("");
@@ -122,12 +101,6 @@ const Sidebar = () => {
         };
     }, [showPopup]);
 
-    // Utility classes for icons and text
-    const iconBase = "text-white transition-all duration-200";
-    const iconGlow = "group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]";
-    const textBase = "text-white font-semibold transition-all duration-200";
-    const textGlow = "group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]";
-
     // Fetch joined communities for chat
     const [joinedCommunities, setJoinedCommunities] = useState([]);
     useEffect(() => {
@@ -184,7 +157,7 @@ const Sidebar = () => {
                     style={{ minWidth: "340px" }}
                 >
                     <div className="flex items-center gap-2 mb-2">
-                        <FiSearch className={iconBase} />
+                        <FiSearch className="text-white transition-all duration-200" />
                         <select
                             value={searchType}
                             onChange={e => { setSearchType(e.target.value); setResults([]); setSearch(""); searchInputRef.current?.focus(); }}
@@ -351,13 +324,19 @@ const Sidebar = () => {
         )
         : null;
 
+    // Utility classes for icons and text
+    const iconBase = "text-white transition-all duration-200";
+    const iconGlow = "group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]";
+    const textBase = "text-white font-semibold transition-all duration-200";
+    const textGlow = "group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.7)]";
+
     return (
         <>
-            <aside className="md:flex-[2_2_0] w-16 max-w-44 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
-                <div className="sticky top-0 left-0 flex flex-col h-screen">
+            <aside className="fixed top-0 left-0 h-screen w-12 sm:w-16 md:w-32 lg:w-64 xl:w-72 bg-black border-r border-neutral-900 shadow-xl flex flex-col z-40 lg:left-4 xl:left-8">
+                <div className="flex flex-col h-full">
                     <Link to='/' className='flex flex-col items-center md:items-start justify-center md:justify-start py-4 group'>
-                        <img src={communioLogo} alt="Communio Logo" className={`w-12 h-12 rounded-xl bg-black p-1 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
-                        <span className="text-blue-200 text-[10px] font-light tracking-wide mt-1">Talk with people, exchange knowledge and experience, grow together</span>
+                        <img src={communioLogo} alt="Communio Logo" className="hidden sm:block w-12 h-12 lg:w-20 lg:h-20 rounded-xl bg-black p-1 shadow-lg transition group-hover:drop-shadow-[0_0_16px_white] group-hover:scale-105" />
+                        <span className="hidden md:block text-blue-200 text-[10px] font-light tracking-wide mt-1">Talk with people, exchange knowledge and experience, grow together</span>
                     </Link>
                     <ul className='flex flex-col gap-3 mt-2 px-1'>
                         <li>
@@ -424,7 +403,7 @@ const Sidebar = () => {
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-yellow-500/20 group-hover:border group-hover:border-yellow-500 transition-all duration-200 pointer-events-none"></span>
                                 <FaRegBookmark className="text-black relative z-10 text-base" />
-                                <span className="text-base hidden md:block relative z-10 text-black font-semibold">Project Ideas</span>
+                                <span className={`text-base hidden md:block relative z-10 text-black font-semibold`}>Project Ideas</span>
                             </Link>
                         </li>
                         {/* --- End Communities --- */}
@@ -483,6 +462,6 @@ const Sidebar = () => {
             {chatsPopup}
         </>
     );
-};
+}
 
 export default Sidebar;

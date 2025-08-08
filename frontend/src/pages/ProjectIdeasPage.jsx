@@ -1,8 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaStar, FaPlus } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaStar, FaPlus } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
+const DOMAINS = [
+  "Web",
+  "AI",
+  "Mobile",
+  "Data Science",
+  "Blockchain",
+  "Game Dev",
+  "IoT",
+  "AR/VR",
+  "Cybersecurity",
+  "Cloud",
+  "DevOps",
+  "Healthcare",
+  "Education",
+  "Finance",
+  "E-commerce",
+  "Social",
+  "Open Source",
+  "Other"
+];
 const TABS = [
   { key: "all", label: "All Ideas" },
   { key: "mine", label: "My Ideas" },
@@ -17,18 +37,19 @@ function ProjectIdeasPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [newDomain, setNewDomain] = useState(DOMAINS[0]);
   const [addLoading, setAddLoading] = useState(false);
   const [savedIds, setSavedIds] = useState([]);
   const [authUser, setAuthUser] = useState(null);
   const [openIdeaId, setOpenIdeaId] = useState(null);
-
+  const [domainFilter, setDomainFilter] = useState("");
   useEffect(() => {
     fetchAuthUser();
   }, []);
 
   useEffect(() => {
     fetchIdeas();
-  }, [search, tab, authUser]);
+  }, [search, tab, authUser, domainFilter]);
 
   const fetchAuthUser = async () => {
     try {
@@ -43,6 +64,7 @@ function ProjectIdeasPage() {
     try {
       let url = `/api/project-ideas?search=${encodeURIComponent(search)}`;
       if (tab === "mine" && authUser) url += `&author=${authUser._id}`;
+      if (domainFilter) url += `&domain=${encodeURIComponent(domainFilter)}`;
       const res = await axios.get(url);
       setIdeas(res.data);
       setError("");
@@ -66,10 +88,11 @@ function ProjectIdeasPage() {
     e.preventDefault();
     setAddLoading(true);
     try {
-      await axios.post("/api/project-ideas", { title: newTitle, description: newDesc });
+      await axios.post("/api/project-ideas", { title: newTitle, description: newDesc, domain: newDomain });
       setShowAddModal(false);
       setNewTitle("");
       setNewDesc("");
+      setNewDomain(DOMAINS[0]);
       fetchIdeas();
     } catch {
       alert("Failed to add idea");
@@ -85,35 +108,48 @@ function ProjectIdeasPage() {
       idea.description.toLowerCase().includes(q)
     );
   });
-
   // Only show current user's ideas in 'My Ideas' tab
   if (tab === "mine" && authUser) {
     filteredIdeas = filteredIdeas.filter(idea => idea.author?._id === authUser._id);
   }
+  // Filter by domain if selected (frontend filter for extra safety)
+  if (domainFilter) {
+    filteredIdeas = filteredIdeas.filter(idea => idea.domain === domainFilter);
+  }
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 px-4">
-      <h2 className="text-yellow-400 text-4xl font-extrabold mb-10 text-center">Project Ideas</h2>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
-        <div className="flex gap-4 justify-center md:justify-start">
+    <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 mt-6 ml-0 md:ml-28">
+      <h2 className="text-yellow-400 text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-10 text-center">Project Ideas</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="flex gap-2 sm:gap-4 justify-center md:justify-start flex-wrap">
           {TABS.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={`px-5 py-2 rounded-lg font-semibold text-lg shadow ${tab === t.key ? "bg-yellow-400 text-black" : "bg-neutral-800 text-yellow-300 hover:bg-yellow-300 hover:text-black"}`}>
+            <button key={t.key} onClick={() => setTab(t.key)} className={`px-3 sm:px-5 py-2 rounded-lg font-semibold text-base sm:text-lg shadow ${tab === t.key ? "bg-yellow-400 text-black" : "bg-neutral-800 text-yellow-300 hover:bg-yellow-300 hover:text-black"}`}>
               {t.label}
             </button>
           ))}
         </div>
-        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 text-black px-5 py-2 rounded-lg font-bold shadow hover:from-yellow-300 hover:to-yellow-500 transition self-center md:self-auto">
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 text-black px-3 sm:px-5 py-2 rounded-lg font-bold shadow hover:from-yellow-300 hover:to-yellow-500 transition self-center md:self-auto text-base sm:text-lg">
           <FaPlus /> Add Idea
         </button>
       </div>
-      <div className="mb-10">
+      <div className="flex flex-col md:flex-row gap-2 sm:gap-4 mb-6 sm:mb-10">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search project ideas..."
-          className="w-full px-5 py-3 rounded-lg border-2 border-yellow-300 bg-neutral-900 text-white text-lg focus:outline-none focus:border-yellow-400 shadow"
+          className="w-full px-3 sm:px-5 py-2 sm:py-3 rounded-lg border-2 border-yellow-300 bg-neutral-900 text-white text-base sm:text-lg focus:outline-none focus:border-yellow-400 shadow"
         />
+        <select
+          value={domainFilter}
+          onChange={e => setDomainFilter(e.target.value)}
+          className="px-3 sm:px-5 py-2 sm:py-3 rounded-lg border-2 border-yellow-300 bg-neutral-900 text-yellow-300 text-base sm:text-lg focus:outline-none focus:border-yellow-400 shadow min-w-[120px] sm:min-w-[160px]"
+        >
+          <option value="">All Domains</option>
+          {DOMAINS.map(domain => (
+            <option key={domain} value={domain}>{domain}</option>
+          ))}
+        </select>
       </div>
       {loading ? (
         <div className="text-yellow-400 text-xl font-bold text-center">Loading...</div>
@@ -168,6 +204,16 @@ function ProjectIdeasPage() {
               rows={5}
               className="px-5 py-3 rounded-lg border-2 border-yellow-300 bg-neutral-800 text-white text-lg focus:outline-none focus:border-yellow-400 shadow"
             />
+            <select
+              value={newDomain}
+              onChange={e => setNewDomain(e.target.value)}
+              required
+              className="px-5 py-3 rounded-lg border-2 border-yellow-300 bg-neutral-800 text-yellow-300 text-lg focus:outline-none focus:border-yellow-400 shadow"
+            >
+              {DOMAINS.map(domain => (
+                <option key={domain} value={domain}>{domain}</option>
+              ))}
+            </select>
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setShowAddModal(false)} className="px-6 py-2 rounded-lg bg-neutral-700 text-white font-semibold">Cancel</button>
               <button type="submit" disabled={addLoading} className="px-6 py-2 rounded-lg bg-yellow-400 text-black font-bold hover:bg-yellow-300 transition">
