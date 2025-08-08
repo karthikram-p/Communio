@@ -49,13 +49,12 @@ function App() {
         );
     }
 
-    // Determine if RightPanel should be hidden ONLY on community list, community chat, and direct message pages
+    // Only show RightPanel on home, notifications, and saved posts
     const pathname = window.location.pathname.replace(/\/$/, ""); // Remove trailing slash for consistency
-    const hideRightPanel =
-        pathname === '/communities' ||
-        pathname === '/communities/create' ||
-        /^\/communities\/[^/]+\/chat$/.test(pathname) ||
-        /^\/direct\//.test(pathname);
+    const showRightPanel =
+        pathname === '/' ||
+        pathname === '/notifications' ||
+        pathname === '/saved';
 
     return (
         <div className='flex max-w-6xl mx-auto'>
@@ -77,7 +76,7 @@ function App() {
                 {/* --- Direct chat route --- */}
                 <Route path='/direct/:username' element={authUser ? <DirectChatPage /> : <Navigate to='/login' />} />
             </Routes>
-            {authUser && !hideRightPanel && <RightPanel />}
+            {authUser && showRightPanel && <RightPanel />}
             <Toaster />
         </div>
     );
