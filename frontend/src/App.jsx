@@ -49,12 +49,9 @@ function App() {
         );
     }
 
-    // Only show RightPanel on home, notifications, and saved posts
+    // Only show RightPanel on home page
     const pathname = window.location.pathname.replace(/\/$/, ""); // Remove trailing slash for consistency
-    const showRightPanel =
-        pathname === '/' ||
-        pathname === '/notifications' ||
-        pathname === '/saved';
+    const showRightPanel = pathname === '/';
 
     return (
         <div className='flex max-w-6xl mx-auto'>
