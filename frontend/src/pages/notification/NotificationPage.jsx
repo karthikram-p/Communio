@@ -75,19 +75,63 @@ const NotificationPage = () => {
 				{notifications?.map((notification) => (
 					<div className='border-b border-gray-700' key={notification._id}>
 						<div className='flex gap-2 p-4'>
-							{notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />}
-							{notification.type === "like" && <FaHeart className='w-7 h-7 text-red-500' />}
-							<Link to={`/profile/${notification.from.username}`}>
-								<div className='avatar'>
-									<div className='w-8 rounded-full'>
-										<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+							{notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />} 
+							{notification.type === "like" && <FaHeart className='w-7 h-7 text-red-500' />} 
+							{notification.type === "community_message" ? (
+								<Link to={`/communities/${notification.communityId}/chat`}>
+									<div className='avatar'>
+										<div className='w-8 rounded-full'>
+											<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+										</div>
 									</div>
-								</div>
-								<div className='flex gap-1'>
-									<span className='font-bold'>@{notification.from.username}</span>{" "}
-									{notification.type === "follow" ? "followed you" : "liked your post"}
-								</div>
-							</Link>
+									<div className='flex gap-1'>
+										<span className='font-bold'>@{notification.from.username}</span>{" "}
+										{notification.message}
+									</div>
+								</Link>
+							) : notification.type === "direct_message" ? (
+								<Link to={`/direct/${notification.from.username}`}>
+									<div className='avatar'>
+										<div className='w-8 rounded-full'>
+											<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+										</div>
+									</div>
+									<div className='flex gap-1'>
+										<span className='font-bold'>@{notification.from.username}</span>{" "}
+										{notification.message}
+									</div>
+								</Link>
+							) : (
+								notification.type === "like" || notification.type === "comment" || notification.type === "repost" ? (
+									<Link to={`/profile/${notification.from.username}`}>
+										<div className='avatar'>
+											<div className='w-8 rounded-full'>
+												<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+											</div>
+										</div>
+										<div className='flex gap-1'>
+											<span className='font-bold'>@{notification.from.username}</span>{" "}
+											{notification.type === "like"
+												? "liked your post"
+												: notification.type === "comment"
+												? "commented on your post"
+												: "reposted your post"}
+										</div>
+									</Link>
+								) : (
+									<Link to={`/profile/${notification.from.username}`}>
+										<div className='avatar'>
+											<div className='w-8 rounded-full'>
+												<img src={notification.from.profileImg || "/avatar-placeholder.png"} />
+											</div>
+										</div>
+										<div className='flex gap-1'>
+											<span className='font-bold'>@{notification.from.username}</span>{" "}
+											followed you
+										</div>
+									</Link>
+								)
+							)}
 						</div>
 					</div>
 				))}

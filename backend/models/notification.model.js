@@ -15,7 +15,14 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["follow", "like", "community_message"], // <-- add this
+      enum: [
+        "follow",
+        "like",
+        "community_message",
+        "direct_message",
+        "comment",
+        "repost",
+      ],
     },
     read: {
       type: Boolean,
@@ -26,6 +33,10 @@ const notificationSchema = new mongoose.Schema(
       ref: "Community",
     },
     message: String, // optional, for chat preview
+    postId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
   },
   { timestamps: true }
 );

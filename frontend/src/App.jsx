@@ -1,3 +1,4 @@
+import RightPanel from "./components/common/RightPanel";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import HomePage from "./pages/home/HomePage";
@@ -8,16 +9,17 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import SavedPosts from "./pages/saved";
 
 import Sidebar from "./components/common/Sidebar";
-import RightPanel from "./components/common/RightPanel";
 
 import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 
 // Import your new pages
+
 import CreateCommunity from "./pages/community/CommunityCreate";
 import Communities from "./pages/community/Communities";
 import CommunityChat from "./pages/community/CommunityChat";
+import DirectChatPage from "./pages/direct/DirectChatPage";
 
 function App() {
     const { data: authUser, isLoading } = useQuery({
@@ -63,6 +65,9 @@ function App() {
                 <Route path='/communities/create' element={authUser ? <CreateCommunity /> : <Navigate to='/login' />} />
                 <Route path='/communities/:id/chat' element={authUser ? <CommunityChat /> : <Navigate to='/login' />} />
                 {/* --- End Community routes --- */}
+
+                {/* --- Direct chat route --- */}
+                <Route path='/direct/:username' element={authUser ? <DirectChatPage /> : <Navigate to='/login' />} />
             </Routes>
             {authUser && <RightPanel />}
             <Toaster />

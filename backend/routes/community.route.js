@@ -4,6 +4,8 @@ import * as communityController from "../controllers/community.controller.js";
 
 const router = express.Router();
 
+router.get("/search", protectRoute, communityController.searchCommunities);
+
 router.get("/", protectRoute, communityController.getAllCommunities);
 router.post("/create", protectRoute, communityController.createCommunity);
 router.get("/:id", protectRoute, communityController.getCommunity);

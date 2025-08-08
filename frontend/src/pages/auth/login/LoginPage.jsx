@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import communioLogo from "../../../components/svgs/communio.png";
 
@@ -9,6 +9,14 @@ import { MdPassword } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const LoginPage = () => {
+	const [userCount, setUserCount] = useState(null);
+	useEffect(() => {
+		fetch('/api/users/count')
+			.then(res => res.json())
+			.then(data => setUserCount(data.count))
+			.catch(() => setUserCount(null));
+	}, []);
+	const navigate = useNavigate();
 	const [formData, setFormData] = useState({
 		username: "",
 		password: "",
@@ -22,27 +30,24 @@ const LoginPage = () => {
 		error,
 	} = useMutation({
 		mutationFn: async ({ username, password }) => {
-			try {
-				const res = await fetch("/api/auth/login", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ username, password }),
-				});
-
-				const data = await res.json();
-
-				if (!res.ok) {
-					throw new Error(data.error || "Something went wrong");
-				}
-			} catch (error) {
-				throw new Error(error);
+			const res = await fetch("/api/auth/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ username, password }),
+			});
+			const data = await res.json();
+			if (!res.ok) {
+				throw new Error(data.error || "Something went wrong");
 			}
+			return data;
 		},
-		onSuccess: () => {
-			// refetch the authUser
+		onSuccess: (data) => {
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
+			if (data && data.username) {
+				navigate(`/profile/${data.username}`, { state: { showProfilePrompt: true } });
+			}
 		},
 	});
 
@@ -62,7 +67,15 @@ const LoginPage = () => {
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
+					{userCount !== null && (
+						<div className="mb-2 text-white text-lg font-semibold bg-blue-900 bg-opacity-80 px-6 py-2 rounded-full shadow text-center">
+							Hurry up and join, we already have {userCount} users!
+						</div>
+					)}
 					<img src={communioLogo} alt="Communio Logo" className="w-24 lg:hidden" />
+					<div className="text-center">
+						<p className="text-blue-200 text-base mb-2 mt-1">Skill Exchange Platform: Connect, share, and swap your skills with others. Learn, teach, and grow together!</p>
+					</div>
 					<h1 className='text-4xl font-extrabold text-white'>{"Let's"} go.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
 						<MdOutlineMail />

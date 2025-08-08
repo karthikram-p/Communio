@@ -3,6 +3,21 @@ import CommunityMessage from "../models/communityMessage.model.js";
 import Notification from "../models/notification.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
+// Search communities by name (case-insensitive, partial match)
+export const searchCommunities = async (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name)
+      return res.status(400).json({ error: "Community name is required" });
+    const communities = await Community.find({
+      name: { $regex: name, $options: "i" },
+    }).select("_id name profilePhoto description");
+    res.json(communities);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 export const joinCommunity = async (req, res) => {
   const userId = req.user._id;
   const communityId = req.params.id;
@@ -113,17 +128,32 @@ export const sendMessage = async (req, res) => {
     const otherMembers = community.members.filter(
       (m) => m.toString() !== sender.toString()
     );
+
     if (otherMembers.length > 0) {
+      const communityName = community.name;
+      const notificationMsg = `New message in ${communityName}. Please check.`;
       await Notification.insertMany(
         otherMembers.map((userId) => ({
           from: sender,
           to: userId,
           type: "community_message",
           communityId,
-          message: text,
+          message: notificationMsg,
           read: false,
         }))
       );
+      // Emit real-time notification to all other members
+      if (global.io) {
+        otherMembers.forEach((userId) => {
+          global.io.to(userId.toString()).emit("community_notification", {
+            from: sender,
+            to: userId,
+            type: "community_message",
+            communityId,
+            message: notificationMsg,
+          });
+        });
+      }
     }
 
     res.status(201).json(populatedMsg);

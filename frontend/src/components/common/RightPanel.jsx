@@ -6,13 +6,9 @@ import useFollow from "../../hooks/useFollow";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import LoadingSpinner from "./LoadingSpinner";
 
+
 const RightPanel = () => {
     const location = useLocation();
-
-    // Hide right panel on community chat page
-    const hideRightPanel = /^\/communities\/[^/]+\/chat$/.test(location.pathname);
-    if (hideRightPanel) return null;
-
     const { data: suggestedUsers, isLoading } = useQuery({
         queryKey: ["suggestedUsers"],
         queryFn: async () => {
@@ -28,8 +24,13 @@ const RightPanel = () => {
             }
         },
     });
-
     const { follow, isPending } = useFollow();
+
+    // Hide right panel on community chat page or direct message page
+    const hideRightPanel =
+        /^\/communities\/[^/]+\/chat$/.test(location.pathname) ||
+        /^\/direct\//.test(location.pathname);
+    if (hideRightPanel) return null;
 
     if (suggestedUsers?.length === 0) return <div className='md:w-64 w-0'></div>;
 

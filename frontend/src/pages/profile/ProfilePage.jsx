@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
@@ -17,7 +17,13 @@ import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
+
 const ProfilePage = () => {
+	const location = useLocation();
+	const [showPrompt, setShowPrompt] = useState(false);
+	const [showFirstTimeModal, setShowFirstTimeModal] = useState(
+		location.state && location.state.showProfilePrompt ? true : false
+	);
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
@@ -28,7 +34,23 @@ const ProfilePage = () => {
 	const { username } = useParams();
 
 	const { follow, isPending } = useFollow();
-	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+	const { data: authUser } = useQuery({
+		queryKey: ["authUser"],
+		queryFn: async () => {
+			try {
+				const res = await fetch("/api/auth/me");
+				const data = await res.json();
+				if (data.error) return null;
+				if (!res.ok) {
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+	});
+
 
 	const {
 		data: user,
@@ -53,9 +75,25 @@ const ProfilePage = () => {
 
 	const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
 
-	const isMyProfile = authUser._id === user?._id;
+	// Declare isMyProfile after both authUser and user are available
+	const isMyProfile = authUser && user ? authUser._id === user?._id : false;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);
-	const amIFollowing = authUser?.following.includes(user?._id);
+	const amIFollowing = authUser?.following?.includes(user?._id);
+
+	useEffect(() => {
+		if (isMyProfile && user && (!user.bio || !user.skills || user.skills.length === 0)) {
+			setShowPrompt(true);
+		} else {
+			setShowPrompt(false);
+		}
+	}, [isMyProfile, user]);
+
+	// Hide first time modal if user completes profile
+	useEffect(() => {
+		if (showFirstTimeModal && user && user.bio && user.skills && user.skills.length > 0) {
+			setShowFirstTimeModal(false);
+		}
+	}, [showFirstTimeModal, user]);
 
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
@@ -75,6 +113,43 @@ const ProfilePage = () => {
 
 	return (
 		<>
+			{showFirstTimeModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+					<div className="bg-white rounded-lg p-8 shadow-lg text-center max-w-xs">
+						<h2 className="text-xl font-bold mb-4 text-black">Complete Your Profile</h2>
+						<p className="mb-4 text-black">Please add your bio and skills to complete your profile!</p>
+						<button
+							className="btn btn-primary text-white rounded-full w-full"
+							onClick={() => setShowFirstTimeModal(false)}
+						>
+							Got it
+						</button>
+					</div>
+				</div>
+			)}
+			{showPrompt && !showFirstTimeModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+					<div
+						className="rounded-2xl p-8 shadow-2xl text-center max-w-xs w-full"
+						style={{
+							background: 'rgba(20, 20, 20, 0.7)',
+							boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+							backdropFilter: 'blur(8px)',
+							WebkitBackdropFilter: 'blur(8px)',
+							border: '1px solid rgba(255, 255, 255, 0.18)'
+						}}
+					>
+						<h2 className="text-xl font-bold mb-4 text-white">Complete Your Profile</h2>
+						<p className="mb-4 text-white">Please add your bio and skills to complete your profile!</p>
+						<button
+							className="btn btn-primary text-white rounded-full w-full"
+							onClick={() => setShowPrompt(false)}
+						>
+							Got it
+						</button>
+					</div>
+				</div>
+			)}
 			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
 				{/* HEADER */}
 				{(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
@@ -137,16 +212,25 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className='flex justify-end px-4 mt-5'>
-								{isMyProfile && <EditProfileModal authUser={authUser} />}
+			{isMyProfile && <EditProfileModal authUser={authUser} />}
 								{!isMyProfile && (
+								<>
 									<button
-										className='btn btn-outline rounded-full btn-sm'
-										onClick={() => follow(user?._id)}
+									className='btn btn-outline rounded-full btn-sm'
+									onClick={() => follow(user?._id)}
 									>
-										{isPending && "Loading..."}
-										{!isPending && amIFollowing && "Unfollow"}
-										{!isPending && !amIFollowing && "Follow"}
+									{isPending && "Loading..."}
+									{!isPending && amIFollowing && "Unfollow"}
+									{!isPending && !amIFollowing && "Follow"}
 									</button>
+									<Link
+									to={`/direct/${user.username}`}
+									className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2 flex justify-center items-center'
+									style={{ minWidth: '90px' }}
+									>
+									<span className='w-full text-center'>Message</span>
+									</Link>
+								</>
 								)}
 								{(coverImg || profileImg) && (
 									<button
@@ -167,6 +251,15 @@ const ProfilePage = () => {
 									<span className='font-bold text-lg'>{user?.fullName}</span>
 									<span className='text-sm text-slate-500'>@{user?.username}</span>
 									<span className='text-sm my-1'>{user?.bio}</span>
+									{user?.skills && user.skills.length > 0 && (
+										<div className='flex flex-wrap gap-2 mt-2'>
+										{user.skills.map((skill, idx) => (
+											<span key={idx} className='bg-blue-900 text-blue-200 px-2 py-1 rounded text-xs'>
+											{skill}
+											</span>
+										))}
+										</div>
+									)}
 								</div>
 
 								<div className='flex gap-2 flex-wrap'>

@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const EditProfileModal = ({ authUser }) => {
-	const [formData, setFormData] = useState({
-		fullName: "",
-		username: "",
-		email: "",
-		bio: "",
-		link: "",
-		newPassword: "",
-		currentPassword: "",
-	});
+  const [formData, setFormData] = useState({
+	fullName: "",
+	username: "",
+	email: "",
+	bio: "",
+	link: "",
+	newPassword: "",
+	currentPassword: "",
+	skills: "",
+  });
 
 	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
 
@@ -18,17 +19,18 @@ const EditProfileModal = ({ authUser }) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	useEffect(() => {
+  useEffect(() => {
 		if (authUser) {
-			setFormData({
-				fullName: authUser.fullName,
-				username: authUser.username,
-				email: authUser.email,
-				bio: authUser.bio,
-				link: authUser.link,
-				newPassword: "",
-				currentPassword: "",
-			});
+		setFormData({
+			fullName: authUser.fullName,
+			username: authUser.username,
+			email: authUser.email,
+			bio: authUser.bio,
+			link: authUser.link,
+			newPassword: "",
+			currentPassword: "",
+			skills: authUser.skills ? authUser.skills.join(", ") : "",
+		});
 		}
 	}, [authUser]);
 
@@ -46,45 +48,54 @@ const EditProfileModal = ({ authUser }) => {
 					<form
 						className='flex flex-col gap-4'
 						onSubmit={(e) => {
-							e.preventDefault();
-							updateProfile(formData);
+						e.preventDefault();
+						const skillsArr = formData.skills.split(",").map(s => s.trim()).filter(Boolean);
+						updateProfile({ ...formData, skills: skillsArr });
 						}}
 					>
-						<div className='flex flex-wrap gap-2'>
-							<input
-								type='text'
-								placeholder='Full Name'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.fullName}
-								name='fullName'
-								onChange={handleInputChange}
-							/>
-							<input
-								type='text'
-								placeholder='Username'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.username}
-								name='username'
-								onChange={handleInputChange}
-							/>
-						</div>
-						<div className='flex flex-wrap gap-2'>
-							<input
-								type='email'
-								placeholder='Email'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.email}
-								name='email'
-								onChange={handleInputChange}
-							/>
-							<textarea
-								placeholder='Bio'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.bio}
-								name='bio'
-								onChange={handleInputChange}
-							/>
-						</div>
+										<div className='flex flex-wrap gap-2'>
+											<input
+												type='text'
+												placeholder='Full Name'
+												className='flex-1 input border border-gray-700 rounded p-2 input-md'
+												value={formData.fullName}
+												name='fullName'
+												onChange={handleInputChange}
+											/>
+											<input
+												type='text'
+												placeholder='Username'
+												className='flex-1 input border border-gray-700 rounded p-2 input-md'
+												value={formData.username}
+												name='username'
+												onChange={handleInputChange}
+											/>
+										</div>
+					<div className='flex flex-wrap gap-2'>
+					<input
+						type='email'
+						placeholder='Email'
+						className='flex-1 input border border-gray-700 rounded p-2 input-md'
+						value={formData.email}
+						name='email'
+						onChange={handleInputChange}
+					/>
+					<textarea
+						placeholder='Bio'
+						className='flex-1 input border border-gray-700 rounded p-2 input-md'
+						value={formData.bio}
+						name='bio'
+						onChange={handleInputChange}
+					/>
+					<input
+						type='text'
+						placeholder='Skills (comma separated)'
+						className='flex-1 input border border-gray-700 rounded p-2 input-md'
+						value={formData.skills}
+						name='skills'
+						onChange={handleInputChange}
+					/>
+					</div>
 						<div className='flex flex-wrap gap-2'>
 							<input
 								type='password'

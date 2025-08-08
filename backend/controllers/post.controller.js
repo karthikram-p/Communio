@@ -109,6 +109,18 @@ export const repostPost = async (req, res) => {
 
     await repost.save();
 
+    // Create notification for original post owner (if not reposting own post)
+    if (originalPost.user.toString() !== userId.toString()) {
+      const notification = new Notification({
+        from: userId,
+        to: originalPost.user,
+        type: "repost",
+        message: `reposted your post`,
+        postId: originalPost._id,
+      });
+      await notification.save();
+    }
+
     res.status(201).json(repost);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
@@ -194,6 +206,18 @@ export const commentOnPost = async (req, res) => {
     post.comments.push(comment);
     await post.save();
 
+    // Create notification for post owner (if not commenting on own post)
+    if (post.user.toString() !== userId.toString()) {
+      const notification = new Notification({
+        from: userId,
+        to: post.user,
+        type: "comment",
+        message: `commented on your post: ${text}`,
+        postId: post._id,
+      });
+      await notification.save();
+    }
+
     res.status(200).json(post);
   } catch (error) {
     console.log("Error in commentOnPost controller: ", error);
@@ -233,6 +257,7 @@ export const likeUnlikePost = async (req, res) => {
         from: userId,
         to: post.user,
         type: "like",
+        postId: post._id,
       });
       await notification.save();
 

@@ -12,6 +12,7 @@ import { useState, useRef, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
 import { createPortal } from "react-dom";
 import axios from "axios";
+import { useDirectChats } from "../../hooks/useDirectChats";
 
 const Sidebar = () => {
     const queryClient = useQueryClient();
@@ -57,10 +58,12 @@ const Sidebar = () => {
 
     const notificationCount = notifications?.length || 0;
 
-    // Search state
+
+    // Search state and type
     const [search, setSearch] = useState("");
     const [results, setResults] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
+    const [searchType, setSearchType] = useState("user"); // 'user', 'community', 'skill'
     const searchInputRef = useRef(null);
     const popupRef = useRef(null);
 
@@ -72,9 +75,15 @@ const Sidebar = () => {
             return;
         }
         try {
-            const res = await fetch(`/api/users/search?username=${encodeURIComponent(value)}`, {
-                credentials: "include",
-            });
+            let url = "";
+            if (searchType === "user") {
+                url = `/api/users/search?username=${encodeURIComponent(value)}`;
+            } else if (searchType === "community") {
+                url = `/api/communities/search?name=${encodeURIComponent(value)}`;
+            } else if (searchType === "skill") {
+                url = `/api/users/search?skill=${encodeURIComponent(value)}`;
+            }
+            const res = await fetch(url, { credentials: "include" });
             const data = await res.json();
             setResults(data);
         } catch {
@@ -139,9 +148,12 @@ const Sidebar = () => {
         }
     }, [authUser]);
 
-    // Popup state for joined communities chat list
+    // Popup state for joined communities and direct chats
     const [showChatsPopup, setShowChatsPopup] = useState(false);
     const chatsPopupRef = useRef(null);
+
+    // Fetch direct chats
+    const { data: directChats, isLoading: loadingDirectChats } = useDirectChats(!!authUser);
 
     // Close chats popup when clicking outside
     useEffect(() => {
@@ -169,16 +181,26 @@ const Sidebar = () => {
                 <div
                     ref={popupRef}
                     className="mt-24 bg-black border border-neutral-800 rounded-xl shadow-xl p-4"
-                    style={{ minWidth: "320px" }}
+                    style={{ minWidth: "340px" }}
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <FiSearch className={iconBase} />
+                        <select
+                            value={searchType}
+                            onChange={e => { setSearchType(e.target.value); setResults([]); setSearch(""); searchInputRef.current?.focus(); }}
+                            className="bg-neutral-900 text-white border border-neutral-700 rounded px-2 py-1 outline-none"
+                            style={{ minWidth: 100 }}
+                        >
+                            <option value="user">Users</option>
+                            <option value="community">Communities</option>
+                            <option value="skill">Skills</option>
+                        </select>
                         <input
                             ref={searchInputRef}
                             type="text"
                             value={search}
                             onChange={handleSearch}
-                            placeholder="Type username..."
+                            placeholder={searchType === "user" ? "Type username..." : searchType === "community" ? "Type community name..." : "Type skill..."}
                             className="flex-1 px-2 py-1 bg-transparent text-white outline-none"
                         />
                         <button
@@ -192,23 +214,46 @@ const Sidebar = () => {
                     {search && (
                         <ul className="bg-neutral-900 rounded max-h-48 overflow-y-auto shadow-inner">
                             {results.length === 0 ? (
-                                <li className="px-3 py-2 text-neutral-500">No users found</li>
+                                <li className="px-3 py-2 text-neutral-500">No results found</li>
                             ) : (
-                                results.map((user) => (
-                                    <li key={user._id}>
-                                        <Link
-                                            to={`/profile/${user.username}`}
-                                            className="flex items-center gap-2 px-3 py-2 hover:bg-neutral-800 rounded"
-                                            onClick={handleClosePopup}
-                                        >
-                                            <img
-                                                src={user.profileImg || "/avatar-placeholder.png"}
-                                                alt={user.username}
-                                                className="w-7 h-7 rounded-lg"
-                                            />
-                                            <span className="text-white">{user.fullName} <span className="text-neutral-400">@{user.username}</span></span>
-                                        </Link>
-                                    </li>
+                                results.map((item) => (
+                                    searchType === "user" || searchType === "skill" ? (
+                                        <li key={item._id}>
+                                            <Link
+                                                to={`/profile/${item.username}`}
+                                                className="flex items-center gap-2 px-3 py-2 hover:bg-neutral-800 rounded"
+                                                onClick={handleClosePopup}
+                                            >
+                                                <img
+                                                    src={item.profileImg || "/avatar-placeholder.png"}
+                                                    alt={item.username}
+                                                    className="w-7 h-7 rounded-lg"
+                                                />
+                                                <span className="text-white">{item.fullName} <span className="text-neutral-400">@{item.username}</span></span>
+                                                {searchType === "skill" && item.skills && (
+                                                    <span className="ml-2 text-xs text-blue-400">{item.skills.join(", ")}</span>
+                                                )}
+                                            </Link>
+                                        </li>
+                                    ) : (
+                                        <li key={item._id}>
+                                            <Link
+                                                to={`/communities/${item._id}`}
+                                                className="flex items-center gap-2 px-3 py-2 hover:bg-neutral-800 rounded"
+                                                onClick={handleClosePopup}
+                                            >
+                                                <img
+                                                    src={item.profilePhoto || "/default-community.png"}
+                                                    alt={item.name}
+                                                    className="w-7 h-7 rounded-lg"
+                                                />
+                                                <span className="text-white">{item.name}</span>
+                                                {item.description && (
+                                                    <span className="ml-2 text-xs text-neutral-400 truncate">{item.description}</span>
+                                                )}
+                                            </Link>
+                                        </li>
+                                    )
                                 ))
                             )}
                         </ul>
@@ -219,18 +264,18 @@ const Sidebar = () => {
         )
         : null;
 
-    // Chats popup portal (shows all joined communities for chat)
+    // Chats popup portal (shows direct chats and joined communities)
     const chatsPopup = showChatsPopup
         ? createPortal(
             <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40">
                 <div
                     ref={chatsPopupRef}
                     className="mt-24 bg-black border border-neutral-800 rounded-xl shadow-xl p-4"
-                    style={{ minWidth: "320px", maxHeight: "60vh", overflowY: "auto" }}
+                    style={{ minWidth: "340px", maxHeight: "60vh", overflowY: "auto" }}
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <HiChatBubbleLeftRight className="text-blue-400 text-xl" />
-                        <span className="text-white font-semibold text-lg">Joined Communities</span>
+                        <span className="text-white font-semibold text-lg">Chats</span>
                         <button
                             onClick={() => setShowChatsPopup(false)}
                             className="ml-auto text-neutral-400 hover:text-white px-2"
@@ -239,29 +284,67 @@ const Sidebar = () => {
                             &#10005;
                         </button>
                     </div>
-                    {joinedCommunities.length === 0 ? (
-                        <div className="text-neutral-500 px-3 py-2">No joined communities</div>
-                    ) : (
-                        <ul className="flex flex-col gap-1">
-                            {joinedCommunities.map((c) => (
-                                <li key={c._id}>
-                                    <Link
-                                        to={`/communities/${c._id}/chat`}
-                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition"
-                                        onClick={() => setShowChatsPopup(false)}
-                                    >
-                                        <img
-                                            src={c.profilePhoto || "/default-community.png"}
-                                            alt={c.name}
-                                            className="w-8 h-8 rounded-lg object-cover border border-blue-400"
-                                            onError={e => { e.target.onerror = null; e.target.src = "/default-community.png"; }}
-                                        />
-                                        <span className="text-white text-base truncate">{c.name}</span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    {/* Direct Chats */}
+                    <div className="mb-3">
+                        <div className="text-neutral-400 text-xs font-semibold mb-1">Direct Messages</div>
+                        {loadingDirectChats ? (
+                            <div className="text-neutral-500 px-3 py-2">Loading...</div>
+                        ) : directChats && directChats.length > 0 ? (
+                            <ul className="flex flex-col gap-1 mb-2">
+                                {directChats.map((chat) => (
+                                    <li key={chat._id}>
+                                        <Link
+                                            to={`/direct/${chat.userInfo.username}`}
+                                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition"
+                                            onClick={() => setShowChatsPopup(false)}
+                                        >
+                                            <img
+                                                src={chat.userInfo.profileImg || "/avatar-placeholder.png"}
+                                                alt={chat.userInfo.username}
+                                                className="w-8 h-8 rounded-lg object-cover border border-green-400"
+                                            />
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-white text-base truncate">{chat.userInfo.fullName}</span>
+                                                <span className="text-neutral-400 text-xs truncate">@{chat.userInfo.username}</span>
+                                                {chat.lastMessage && (
+                                                    <span className="text-neutral-500 text-xs truncate">{chat.lastMessage}</span>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <div className="text-neutral-500 px-3 py-2">No direct chats</div>
+                        )}
+                    </div>
+                    {/* Community Chats */}
+                    <div>
+                        <div className="text-neutral-400 text-xs font-semibold mb-1">Communities</div>
+                        {joinedCommunities.length === 0 ? (
+                            <div className="text-neutral-500 px-3 py-2">No joined communities</div>
+                        ) : (
+                            <ul className="flex flex-col gap-1">
+                                {joinedCommunities.map((c) => (
+                                    <li key={c._id}>
+                                        <Link
+                                            to={`/communities/${c._id}/chat`}
+                                            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition"
+                                            onClick={() => setShowChatsPopup(false)}
+                                        >
+                                            <img
+                                                src={c.profilePhoto || "/default-community.png"}
+                                                alt={c.name}
+                                                className="w-8 h-8 rounded-lg object-cover border border-blue-400"
+                                                onError={e => { e.target.onerror = null; e.target.src = "/default-community.png"; }}
+                                            />
+                                            <span className="text-white text-base truncate">{c.name}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
             </div>,
             document.body
@@ -272,8 +355,9 @@ const Sidebar = () => {
         <>
             <aside className="md:flex-[2_2_0] w-20 max-w-60 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
                 <div className="sticky top-0 left-0 flex flex-col h-screen">
-                    <Link to='/' className='flex justify-center md:justify-start py-6 group'>
+                    <Link to='/' className='flex flex-col items-center md:items-start justify-center md:justify-start py-6 group'>
                         <img src={communioLogo} alt="Communio Logo" className={`w-20 h-20 rounded-xl bg-black p-2 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
+                        <span className="text-blue-200 text-xs font-light tracking-wide mt-1">Talk with people, exchange knowledge and experience, grow together</span>
                     </Link>
                     <ul className='flex flex-col gap-4 mt-2 px-2'>
                         <li>

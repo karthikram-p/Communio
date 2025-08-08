@@ -1,3 +1,12 @@
+// Get total user count
+export const getUserCount = async (req, res) => {
+  try {
+    const count = await User.countDocuments();
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -5,17 +14,23 @@ import { v2 as cloudinary } from "cloudinary";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
 
+// Search users by username or skill
 export const searchUsers = async (req, res) => {
   try {
-    const { username } = req.query;
-    if (!username)
-      return res.status(400).json({ error: "Username is required" });
-
-    // Case-insensitive, partial match
-    const users = await User.find({
-      username: { $regex: username, $options: "i" },
-    }).select("username fullName profileImg");
-
+    const { username, skill } = req.query;
+    let query = {};
+    if (username) {
+      query.username = { $regex: username, $options: "i" };
+    }
+    if (skill) {
+      query.skills = { $regex: skill, $options: "i" };
+    }
+    if (!username && !skill) {
+      return res.status(400).json({ error: "Username or skill is required" });
+    }
+    const users = await User.find(query).select(
+      "username fullName profileImg skills"
+    );
     res.json(users);
   } catch (error) {
     console.error("Search error:", error);
@@ -115,8 +130,16 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const { fullName, email, username, currentPassword, newPassword, bio, link } =
-    req.body;
+  const {
+    fullName,
+    email,
+    username,
+    currentPassword,
+    newPassword,
+    bio,
+    link,
+    skills,
+  } = req.body;
   let { profileImg, coverImg } = req.body;
 
   const userId = req.user._id;
@@ -187,6 +210,7 @@ export const updateUser = async (req, res) => {
     user.link = link || user.link;
     user.profileImg = profileImg || user.profileImg;
     user.coverImg = coverImg || user.coverImg;
+    if (skills) user.skills = skills;
 
     user = await user.save();
 

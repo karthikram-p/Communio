@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    skills: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
