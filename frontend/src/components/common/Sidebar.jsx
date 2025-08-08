@@ -353,54 +353,54 @@ const Sidebar = () => {
 
     return (
         <>
-            <aside className="md:flex-[2_2_0] w-20 max-w-60 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
+            <aside className="md:flex-[2_2_0] w-16 max-w-44 bg-black border-r border-neutral-900 shadow-xl min-h-screen flex flex-col">
                 <div className="sticky top-0 left-0 flex flex-col h-screen">
-                    <Link to='/' className='flex flex-col items-center md:items-start justify-center md:justify-start py-6 group'>
-                        <img src={communioLogo} alt="Communio Logo" className={`w-20 h-20 rounded-xl bg-black p-2 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
-                        <span className="text-blue-200 text-xs font-light tracking-wide mt-1">Talk with people, exchange knowledge and experience, grow together</span>
+                    <Link to='/' className='flex flex-col items-center md:items-start justify-center md:justify-start py-4 group'>
+                        <img src={communioLogo} alt="Communio Logo" className={`w-12 h-12 rounded-xl bg-black p-1 shadow-lg hover:scale-105 transition ${iconBase} ${iconGlow}`} />
+                        <span className="text-blue-200 text-[10px] font-light tracking-wide mt-1">Talk with people, exchange knowledge and experience, grow together</span>
                     </Link>
-                    <ul className='flex flex-col gap-4 mt-2 px-2'>
+                    <ul className='flex flex-col gap-3 mt-2 px-1'>
                         <li>
                             <button
                                 id="search-users-btn"
                                 type="button"
                                 onClick={handleIconClick}
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <FiSearch className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Search users</span>
+                                <FiSearch className={`${iconBase} relative z-10 ${iconGlow} text-base`} />
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Search users</span>
                             </button>
                         </li>
                         <li>
                             <Link
                                 to='/'
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <MdHomeFilled className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Home</span>
+                                <MdHomeFilled className={`${iconBase} relative z-10 ${iconGlow} text-base`} />
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Home</span>
                             </Link>
                         </li>
                         {/* --- Communities and Create Community --- */}
                         <li>
                             <Link
                                 to='/communities'
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <MdGroup className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Communities</span>
+                                <MdGroup className={`${iconBase} relative z-10 ${iconGlow} text-base`} />
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Communities</span>
                             </Link>
                         </li>
                         <li>
                             <Link
                                 to='/communities/create'
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
-                                <AiOutlinePlus className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Create Community</span>
+                                <AiOutlinePlus className={`${iconBase} relative z-10 ${iconGlow} text-base`} />
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Create Community</span>
                             </Link>
                         </li>
                         {/* --- Community Chats (joined communities) as popup --- */}
@@ -409,22 +409,33 @@ const Sidebar = () => {
                                 id="chats-popup-btn"
                                 type="button"
                                 onClick={() => setShowChatsPopup(true)}
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-blue-700 transition-all duration-200 pointer-events-none"></span>
-                                <HiChatBubbleLeftRight className="text-blue-400 relative z-10" />
-                                <span className="text-lg hidden md:block relative z-10 text-blue-400 font-semibold">Chats</span>
+                                <HiChatBubbleLeftRight className="text-blue-400 relative z-10 text-base" />
+                                <span className="text-base hidden md:block relative z-10 text-blue-400 font-semibold">Chats</span>
                             </button>
+                        </li>
+                        {/* --- Project Ideas --- */}
+                        <li>
+                            <Link
+                                to='/project-ideas'
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 hover:from-yellow-300 hover:to-yellow-500 shadow-lg`}
+                            >
+                                <span className="absolute inset-0 rounded-xl group-hover:bg-yellow-500/20 group-hover:border group-hover:border-yellow-500 transition-all duration-200 pointer-events-none"></span>
+                                <FaRegBookmark className="text-black relative z-10 text-base" />
+                                <span className="text-base hidden md:block relative z-10 text-black font-semibold">Project Ideas</span>
+                            </Link>
                         </li>
                         {/* --- End Communities --- */}
                         <li className='relative'>
                             <Link
                                 to='/notifications'
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
                                 <IoNotifications className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Notifications</span>
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Notifications</span>
                                 {notificationCount > 0 && (
                                     <span className="absolute top-1 right-3 bg-white text-black text-xs font-bold rounded-full px-2 py-0.5 shadow-md">
                                         {notificationCount}
@@ -434,12 +445,12 @@ const Sidebar = () => {
                         </li>
                         <li>
                             <button
-                                className={`flex gap-3 items-center group rounded-xl py-3 px-4 w-full transition relative`}
+                                className={`flex gap-2 items-center group rounded-xl py-2 px-2 w-full transition relative`}
                                 onClick={() => navigate("/saved")}
                             >
                                 <span className="absolute inset-0 rounded-xl group-hover:bg-neutral-900/80 group-hover:border group-hover:border-neutral-700 transition-all duration-200 pointer-events-none"></span>
                                 <FaRegBookmark className={`${iconBase} relative z-10 ${iconGlow}`} />
-                                <span className={`text-lg hidden md:block relative z-10 ${textBase} ${textGlow}`}>Saved Posts</span>
+                                <span className={`text-base hidden md:block relative z-10 ${textBase} ${textGlow}`}>Saved Posts</span>
                             </button>
                         </li>
                     </ul>

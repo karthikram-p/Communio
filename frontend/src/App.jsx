@@ -21,6 +21,11 @@ import Communities from "./pages/community/Communities";
 import CommunityChat from "./pages/community/CommunityChat";
 import DirectChatPage from "./pages/direct/DirectChatPage";
 
+import ProjectIdeasPage from "./pages/ProjectIdeasPage";
+
+import ProjectIdeaNewPage from "./pages/ProjectIdeaNewPage";
+import ProjectIdeaDetailPage from "./pages/ProjectIdeaDetailPage";
+
 function App() {
     const { data: authUser, isLoading } = useQuery({
         queryKey: ["authUser"],
@@ -72,6 +77,11 @@ function App() {
 
                 {/* --- Direct chat route --- */}
                 <Route path='/direct/:username' element={authUser ? <DirectChatPage /> : <Navigate to='/login' />} />
+
+                    {/* --- Project Ideas route --- */}
+                    <Route path='/project-ideas' element={authUser ? <ProjectIdeasPage /> : <Navigate to='/login' />} />
+                        <Route path='/project-ideas/new' element={authUser ? <ProjectIdeaNewPage /> : <Navigate to='/login' />} />
+                        <Route path='/project-ideas/:id' element={authUser ? <ProjectIdeaDetailPage /> : <Navigate to='/login' />} />
             </Routes>
             {authUser && showRightPanel && <RightPanel />}
             <Toaster />

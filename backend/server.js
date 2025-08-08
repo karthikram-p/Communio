@@ -13,6 +13,8 @@ import communityRoutes from "./routes/community.route.js";
 import chatRoutes from "./routes/chat.route.js";
 import directMessageRoutes from "./routes/directMessage.route.js";
 
+import projectIdeaRoutes from "./routes/projectIdea.route.js";
+
 import connectMongoDB from "./db/connectMongoDB.js";
 
 dotenv.config();
@@ -41,6 +43,8 @@ app.use("/api/communities", communityRoutes);
 
 app.use("/api/chats", chatRoutes);
 app.use("/api/direct", directMessageRoutes);
+
+app.use("/api/project-ideas", projectIdeaRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend", "dist")));
