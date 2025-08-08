@@ -7,12 +7,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
     const [comment, setComment] = useState("");
+    const [imgIdx, setImgIdx] = useState(0);
     const { data: authUser } = useQuery({ queryKey: ["authUser"] });
     const queryClient = useQueryClient();
     const postOwner = post.user;
@@ -189,13 +191,47 @@ const Post = ({ post }) => {
                     </div>
                     <div className='flex flex-col gap-3 overflow-hidden'>
                         <span>{post.text}</span>
-                        {post.img && (
+                        {/* Multiple images carousel */}
+                        {post.imgs && post.imgs.length > 0 ? (
+                            <div className='relative w-full max-w-lg mx-auto flex items-center justify-center'>
+                                <button
+                                    type='button'
+                                    className='absolute left-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white z-10'
+                                    onClick={() => setImgIdx((prev) => (prev > 0 ? prev - 1 : post.imgs.length - 1))}
+                                    disabled={post.imgs.length <= 1}
+                                >
+                                    <FaArrowLeft />
+                                </button>
+                                <img
+                                    src={post.imgs[imgIdx]}
+                                    className='h-80 object-contain rounded-lg border border-gray-700 mx-auto'
+                                    alt='post-img'
+                                />
+                                <button
+                                    type='button'
+                                    className='absolute right-0 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white z-10'
+                                    onClick={() => setImgIdx((prev) => (prev < post.imgs.length - 1 ? prev + 1 : 0))}
+                                    disabled={post.imgs.length <= 1}
+                                >
+                                    <FaArrowRight />
+                                </button>
+                                <div className='absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1'>
+                                    {post.imgs.map((_, idx) => (
+                                        <span
+                                            key={idx}
+                                            className={`inline-block w-2 h-2 rounded-full ${imgIdx === idx ? "bg-blue-500" : "bg-gray-400"}`}
+                                            onClick={() => setImgIdx(idx)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        ) : post.img ? (
                             <img
                                 src={post.img}
-                                className='h-80 object-contain rounded-lg border border-gray-700'
-                                alt=''
+                                className='h-80 object-contain rounded-lg border border-gray-700 mx-auto'
+                                alt='post-img'
                             />
-                        )}
+                        ) : null}
                     </div>
                     <div className='flex justify-between mt-3'>
                         <div className='flex gap-4 items-center w-2/3 justify-between'>

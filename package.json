@@ -13,6 +13,7 @@
 	"type": "module",
 	"license": "ISC",
 	"dependencies": {
+		"@daily-co/daily-js": "^0.82.0",
 		"axios": "^1.10.0",
 		"bcryptjs": "^2.4.3",
 		"cloudinary": "^2.1.0",
@@ -22,7 +23,12 @@
 		"express": "^4.19.2",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.3.1",
-		"socket.io": "^4.8.1"
+		"peerjs": "^1.5.5",
+		"simple-peer": "^9.11.1",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
+		"twilio": "^5.8.0",
+		"twilio-video": "^2.32.1"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",

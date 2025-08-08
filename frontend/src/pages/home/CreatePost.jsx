@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 
 const CreatePost = () => {
 	const [text, setText] = useState("");
-	const [img, setImg] = useState(null);
+	const [imgs, setImgs] = useState([]); // Array of images
 	const imgRef = useRef(null);
 
 	const { data: authUser } = useQuery({ queryKey: ["authUser"] });
@@ -19,14 +19,14 @@ const CreatePost = () => {
 		isError,
 		error,
 	} = useMutation({
-		mutationFn: async ({ text, img }) => {
+		mutationFn: async ({ text, imgs }) => {
 			try {
 				const res = await fetch("/api/posts/create", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ text, img }),
+					body: JSON.stringify({ text, imgs }),
 				});
 				const data = await res.json();
 				if (!res.ok) {
@@ -40,7 +40,7 @@ const CreatePost = () => {
 
 		onSuccess: () => {
 			setText("");
-			setImg(null);
+			setImgs([]);
 			toast.success("Post created successfully");
 			queryClient.invalidateQueries({ queryKey: ["posts"] });
 		},
@@ -48,18 +48,26 @@ const CreatePost = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		createPost({ text, img });
+		createPost({ text, imgs });
 	};
 
 	const handleImgChange = (e) => {
-		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				setImg(reader.result);
-			};
-			reader.readAsDataURL(file);
-		}
+		const files = Array.from(e.target.files);
+		const readers = files.map(
+			(file) =>
+				new Promise((resolve) => {
+					const reader = new FileReader();
+					reader.onload = () => resolve(reader.result);
+					reader.readAsDataURL(file);
+				})
+		);
+		Promise.all(readers).then((images) => {
+			setImgs((prev) => [...prev, ...images]);
+		});
+	};
+
+	const handleRemoveImg = (idx) => {
+		setImgs((prev) => prev.filter((_, i) => i !== idx));
 	};
 
 	return (
@@ -76,16 +84,17 @@ const CreatePost = () => {
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 				/>
-				{img && (
-					<div className='relative w-72 mx-auto'>
-						<IoCloseSharp
-							className='absolute top-0 right-0 text-white bg-gray-800 rounded-full w-5 h-5 cursor-pointer'
-							onClick={() => {
-								setImg(null);
-								imgRef.current.value = null;
-							}}
-						/>
-						<img src={img} className='w-full mx-auto h-72 object-contain rounded' />
+				{imgs.length > 0 && (
+					<div className='flex gap-2 flex-wrap justify-center'>
+						{imgs.map((img, idx) => (
+							<div key={idx} className='relative w-32 h-32'>
+								<IoCloseSharp
+									className='absolute top-0 right-0 text-white bg-gray-800 rounded-full w-5 h-5 cursor-pointer'
+									onClick={() => handleRemoveImg(idx)}
+								/>
+								<img src={img} className='w-full h-full object-contain rounded' />
+							</div>
+						))}
 					</div>
 				)}
 
@@ -97,7 +106,7 @@ const CreatePost = () => {
 						/>
 						<BsEmojiSmileFill className='fill-primary w-5 h-5 cursor-pointer' />
 					</div>
-					<input type='file' accept='image/*' hidden ref={imgRef} onChange={handleImgChange} />
+					<input type='file' accept='image/*' multiple hidden ref={imgRef} onChange={handleImgChange} />
 					<button className='btn btn-primary rounded-full btn-sm text-white px-4'>
 						{isPending ? "Posting..." : "Post"}
 					</button>
