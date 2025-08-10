@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import LoadingSpinner from "../components/common/LoadingSpinner.jsx";
 
 const TeamFormationPage = () => {
+  const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
   const [myTeams, setMyTeams] = useState(false);
@@ -333,7 +335,7 @@ const TeamFormationPage = () => {
                       <div className="flex flex-row gap-2 items-center">
                         {team.author && (
                           <button
-                            onClick={() => window.location.href = `http://localhost:3000/profile/${team.author.username}`}
+                            onClick={() => navigate(`/profile/${team.author.username}`)}
                             className="text-sm font-semibold px-3 py-1 rounded-full border border-blue-700 bg-blue-700 text-white shadow hover:bg-blue-800 transition font-sans"
                           >
                             {team.author.fullName || team.author.username}
@@ -387,7 +389,7 @@ const TeamFormationPage = () => {
                     {team.author && team.author._id !== authUser?._id && (
                       <button
                         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 font-semibold"
-                        onClick={() => window.location.href = `/direct/${team.author.username}`}
+                        onClick={() => navigate(`/direct/${team.author.username}`)}
                       >
                         Contact Team Lead
                       </button>
