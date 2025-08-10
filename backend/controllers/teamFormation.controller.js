@@ -3,8 +3,18 @@ export const editTeamPost = async (req, res) => {
   try {
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (String(team.author) !== String(req.user._id)) return res.status(403).json({ error: "Not authorized" });
-    const { competitionName, description, domain, teamSize, prizeMoney, deadline, platform, link } = req.body;
+    if (String(team.author) !== String(req.user._id))
+      return res.status(403).json({ error: "Not authorized" });
+    const {
+      competitionName,
+      description,
+      domain,
+      teamSize,
+      prizeMoney,
+      deadline,
+      platform,
+      link,
+    } = req.body;
     team.competitionName = competitionName;
     team.description = description;
     team.domain = domain;
@@ -24,7 +34,8 @@ import TeamFormation from "../models/teamFormation.model.js";
 // Create a new team formation post
 export const createTeam = async (req, res) => {
   try {
-    const { competitionName, description, domain, teamSize, prizeMoney } = req.body;
+    const { competitionName, description, domain, teamSize, prizeMoney } =
+      req.body;
     const team = new TeamFormation({
       competitionName,
       description,
@@ -44,12 +55,12 @@ export const createTeam = async (req, res) => {
 // Get all team formation posts (with optional domain filter)
 export const getTeams = async (req, res) => {
   try {
-  const { search, author, my, prizeFrom, prizeTo, domain } = req.query;
+    const { search, author, my, prizeFrom, prizeTo, domain } = req.query;
     let query = {};
     if (search) {
       query.$or = [
         { competitionName: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+        { description: { $regex: search, $options: "i" } },
       ];
     }
     if (prizeFrom || prizeTo) {
@@ -78,7 +89,8 @@ export const editTeamSize = async (req, res) => {
     const { teamSize } = req.body;
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (String(team.author) !== String(req.user._id)) return res.status(403).json({ error: "Not authorized" });
+    if (String(team.author) !== String(req.user._id))
+      return res.status(403).json({ error: "Not authorized" });
     team.teamSize = teamSize;
     await team.save();
     res.json(team);
@@ -92,7 +104,8 @@ export const disableTeam = async (req, res) => {
   try {
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (String(team.author) !== String(req.user._id)) return res.status(403).json({ error: "Not authorized" });
+    if (String(team.author) !== String(req.user._id))
+      return res.status(403).json({ error: "Not authorized" });
     team.disabled = true;
     await team.save();
     res.json(team);
@@ -106,9 +119,12 @@ export const joinTeam = async (req, res) => {
   try {
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (team.disabled) return res.status(400).json({ error: "Team is disabled" });
-    if (team.members.length >= team.teamSize) return res.status(400).json({ error: "Team is full" });
-    if (team.members.includes(req.user._id)) return res.status(400).json({ error: "Already joined" });
+    if (team.disabled)
+      return res.status(400).json({ error: "Team is disabled" });
+    if (team.members.length >= team.teamSize)
+      return res.status(400).json({ error: "Team is full" });
+    if (team.members.includes(req.user._id))
+      return res.status(400).json({ error: "Already joined" });
     team.members.push(req.user._id);
     await team.save();
     res.json(team);
@@ -122,8 +138,11 @@ export const removeMember = async (req, res) => {
   try {
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (String(team.author) !== String(req.user._id)) return res.status(403).json({ error: "Not authorized" });
-    team.members = team.members.filter(m => String(m) !== String(req.body.userId));
+    if (String(team.author) !== String(req.user._id))
+      return res.status(403).json({ error: "Not authorized" });
+    team.members = team.members.filter(
+      (m) => String(m) !== String(req.body.userId)
+    );
     await team.save();
     res.json(team);
   } catch (error) {
@@ -149,7 +168,8 @@ export const deleteTeamPost = async (req, res) => {
   try {
     const team = await TeamFormation.findById(req.params.id);
     if (!team) return res.status(404).json({ error: "Team not found" });
-    if (String(team.author) !== String(req.user._id)) return res.status(403).json({ error: "Not authorized" });
+    if (String(team.author) !== String(req.user._id))
+      return res.status(403).json({ error: "Not authorized" });
     await team.deleteOne();
     res.json({ success: true });
   } catch (error) {

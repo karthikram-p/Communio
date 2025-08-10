@@ -8,7 +8,7 @@ import {
   removeMember,
   getTeamById,
   editTeamPost,
-  deleteTeamPost
+  deleteTeamPost,
 } from "../controllers/teamFormation.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
