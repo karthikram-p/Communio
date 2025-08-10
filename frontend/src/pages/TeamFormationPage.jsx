@@ -387,7 +387,7 @@ const TeamFormationPage = () => {
                     {team.author && team.author._id !== authUser?._id && (
                       <button
                         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 font-semibold"
-                        onClick={() => window.location.href = `http://localhost:3000/direct/${team.author.username}`}
+                        onClick={() => window.location.href = `/direct/${team.author.username}`}
                       >
                         Contact Team Lead
                       </button>
