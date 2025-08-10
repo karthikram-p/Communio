@@ -118,7 +118,7 @@ function ProjectIdeasPage() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 mt-6 ml-0 md:ml-28">
+  <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 mt-6 ml-0 md:ml-28 pt-16 md:pt-0">
       <h2 className="text-yellow-400 text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-10 text-center">Project Ideas</h2>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div className="flex gap-2 sm:gap-4 justify-center md:justify-start flex-wrap">

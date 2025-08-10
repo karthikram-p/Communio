@@ -234,8 +234,8 @@ const Communities = () => {
     }
 
     return (
-        <div className="max-w-4xl mx-auto mt-10">
-            <h2 className="text-white text-3xl font-bold mb-8 text-center">Communities</h2>
+    <div className="w-full md:ml-72 px-2 md:px-4 py-4 rounded-xl shadow bg-black pt-16 md:pt-0">
+            <h2 className="text-4xl font-extrabold mb-8 text-center text-blue-400 tracking-tight drop-shadow-lg">Communities</h2>
             <div className="mb-10">
                 <h3 className="text-blue-400 text-xl font-semibold mb-4">Your Communities</h3>
                 <div className="max-h-96 overflow-y-auto">

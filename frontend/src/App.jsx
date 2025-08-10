@@ -25,6 +25,7 @@ import ProjectIdeasPage from "./pages/ProjectIdeasPage";
 
 import ProjectIdeaNewPage from "./pages/ProjectIdeaNewPage";
 import ProjectIdeaDetailPage from "./pages/ProjectIdeaDetailPage";
+import TeamFormationPage from "./pages/TeamFormationPage";
 
 function App() {
     const { data: authUser, isLoading } = useQuery({
@@ -82,6 +83,8 @@ function App() {
                     <Route path='/project-ideas' element={authUser ? <ProjectIdeasPage /> : <Navigate to='/login' />} />
                         <Route path='/project-ideas/new' element={authUser ? <ProjectIdeaNewPage /> : <Navigate to='/login' />} />
                         <Route path='/project-ideas/:id' element={authUser ? <ProjectIdeaDetailPage /> : <Navigate to='/login' />} />
+
+                <Route path='/teams' element={authUser ? <TeamFormationPage /> : <Navigate to='/login' />} />
             </Routes>
             {authUser && showRightPanel && <RightPanel />}
             <Toaster />

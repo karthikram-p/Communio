@@ -48,8 +48,8 @@ const NotificationPage = () => {
 	});
 
 	return (
-		<div className="w-full max-w-6xl mx-auto px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 mt-6 ml-0 md:ml-28">
-			<div className='flex-[4_4_0] border-l border-r border-gray-700 min-h-screen'>
+		<div className="w-full md:ml-72 px-2 md:px-4 py-4 rounded-xl shadow bg-black min-h-screen pt-16 md:pt-0">
+			<div>
 				<div className='flex justify-between items-center p-4 border-b border-gray-700'>
 					<p className='font-bold'>Notifications</p>
 					<div className='dropdown '>

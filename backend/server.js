@@ -14,6 +14,7 @@ import chatRoutes from "./routes/chat.route.js";
 import directMessageRoutes from "./routes/directMessage.route.js";
 
 import projectIdeaRoutes from "./routes/projectIdea.route.js";
+import teamFormationRoutes from "./routes/teamFormation.route.js";
 
 import connectMongoDB from "./db/connectMongoDB.js";
 
@@ -45,6 +46,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/direct", directMessageRoutes);
 
 app.use("/api/project-ideas", projectIdeaRoutes);
+app.use("/api/teams", teamFormationRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend", "dist")));

@@ -53,7 +53,7 @@ const DirectChatPage = () => {
   if (!recipient) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="flex flex-col h-[80vh] w-full md:w-[55vw] mx-auto border border-neutral-800 rounded-xl bg-black mt-8 shadow-lg" style={{ minHeight: 500, maxWidth: '100vw' }}>
+  <div className="flex flex-col h-screen w-full md:ml-72 bg-black min-h-screen pt-16 md:pt-0" style={{ minHeight: '100vh' }}>
       <div className="p-4 border-b border-neutral-800 flex items-center gap-3">
         <img src={recipient.profileImg || "/avatar-placeholder.png"} alt={recipient.username} className="w-10 h-10 rounded-full" />
         <div>

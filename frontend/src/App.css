@@ -3,6 +3,10 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #fff;
 }
 
 .logo {
