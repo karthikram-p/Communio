@@ -133,16 +133,6 @@ const LoginPage = () => {
                         {isTestLoginPending ? "Loading..." : "Login"}
                     </button>
 
-                    {/* Test Account Button (Optional) */}
-                    <button 
-                        type="button" 
-                        className='btn rounded-full btn-success text-white'
-                        onClick={handleTestAccountLogin}
-                        disabled={isTestLoginPending}
-                    >
-                        {isTestLoginPending ? "Logging in..." : "Login with Test Account 🚀"}
-                    </button>
-
                     {/* DISPLAY CREDENTIALS HERE */}
                     <div className="text-center bg-gray-700 bg-opacity-70 p-3 rounded-lg mt-2 text-white">
                         <p className="font-bold mb-1">Or use the Test Account:</p>
