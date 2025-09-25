@@ -8,6 +8,10 @@ import { MdPassword } from "react-icons/md";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+// Define your temporary credentials here
+const TEMP_USERNAME = "testuser";
+const TEMP_PASSWORD = "Testuser@123"; // Replace with your actual temp password
+
 const LoginPage = () => {
 	const [userCount, setUserCount] = useState(null);
 	useEffect(() => {
@@ -56,14 +60,25 @@ const LoginPage = () => {
 		loginMutation(formData);
 	};
 
+    const handleTestAccountLogin = () => {
+        // You could optionally set the form data here for a visual effect:
+        // setFormData({ username: TEMP_USERNAME, password: TEMP_PASSWORD });
+        
+        // Call the mutation directly with the temporary credentials
+        loginMutation({ username: TEMP_USERNAME, password: TEMP_PASSWORD });
+    };
+
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
+	// Check if the temporary login is pending to disable both buttons
+    const isTestLoginPending = isPending; 
+
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen'>
-			<div className='flex-1 hidden lg:flex items-center  justify-center'>
-				<img src={communioLogo} alt="Communio Logo" className="lg:w-2/3 rounded-lg" />
+			<div className='flex-1 hidden lg:flex items-center  justify-center'>
+				<img src={communioLogo} alt="Communio Logo" className="h-full w-auto max-w-xs object-contain rounded-lg" />
 			</div>
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='flex gap-4 flex-col' onSubmit={handleSubmit}>
@@ -100,9 +115,18 @@ const LoginPage = () => {
 							value={formData.password}
 						/>
 					</label>
-					<button className='btn rounded-full btn-primary text-white'>
-						{isPending ? "Loading..." : "Login"}
+					<button className='btn rounded-full btn-primary text-white' disabled={isTestLoginPending}>
+						{isTestLoginPending ? "Loading..." : "Login"}
 					</button>
+
+                    {/* DISPLAY CREDENTIALS HERE */}
+                    <div className="text-center bg-gray-700 bg-opacity-70 p-3 rounded-lg mt-2 text-white">
+                        <p className="font-bold mb-1">Or use the Test Account:</p>
+                        <p>Username: <span className="font-semibold text-yellow-300">{TEMP_USERNAME}</span></p>
+                        <p>Password: <span className="font-semibold text-yellow-300">{TEMP_PASSWORD}</span></p>
+                    </div>
+                    {/* END DISPLAY */}
+
 					{isError && <p className='text-red-500'>{error.message}</p>}
 				</form>
 				<div className='flex flex-col gap-2 mt-4'>
