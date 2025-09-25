@@ -37,7 +37,7 @@ function Sidebar() {
     // Simple logout handler
     const logout = async () => {
         await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-        navigate("/auth/login");
+        navigate("/login");
     };
 
     // Search state and type
